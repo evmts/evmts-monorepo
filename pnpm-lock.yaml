@@ -300,6 +300,7 @@ importers:
       '@evmts/core': workspace:^0.0.2
       '@evmts/plugin-webpack': workspace:^0.0.1
       '@next/font': 13.1.6
+      '@tanstack/react-query': ^4.24.6
       '@types/node': 18.14.0
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
@@ -311,6 +312,7 @@ importers:
       '@evmts/core': link:../../packages/core
       '@evmts/plugin-webpack': link:../../packages/plugin-webpack
       '@next/font': 13.1.6
+      '@tanstack/react-query': 4.24.6_biqbaboplfbrettd7655fr4n2y
       '@types/node': 18.14.0
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11

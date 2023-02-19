@@ -39,7 +39,7 @@ export class EvmTsPlugin {
 		let artifacts: Artifacts;
 		const foundryConfig = getFoundryConfig(this.options);
 
-		compiler.hooks.beforeRun.tapPromise(EvmTsPlugin.name, async (compiler) => {
+		compiler.hooks.beforeRun.tapPromise(EvmTsPlugin.name, async () => {
 			await buildContracts(this.options);
 			if (!(await pathExists(foundryConfig.out))) {
 				throw new Error(
@@ -52,23 +52,24 @@ export class EvmTsPlugin {
 		compiler.hooks.normalModuleFactory.tap(
 			EvmTsPlugin.name,
 			(normalModuleFactory) => {
-				normalModuleFactory.hooks.resolve.tapAsync(EvmTsPlugin.name, (data) => {
-					if (!data.request.endsWith(".sol")) {
-						return data;
-					}
+				normalModuleFactory.hooks.resolve.tapAsync(
+					EvmTsPlugin.name,
+					async (data, callback) => {
+						if (!data.request.endsWith(".sol")) {
+							return callback();
+						}
 
-					const contract = artifacts[getContractName(data.request)];
+						const contract = artifacts[getContractName(data.request)];
 
-					if (!contract) {
-						throw new Error(
-							`@evmts/plugin-webpack: contract not found: ${data.request}`,
-						);
-					}
+						if (!contract) {
+							throw new Error(
+								`@evmts/plugin-webpack: contract not found: ${data.request}`,
+							);
+						}
 
-					const moduleContent = createModule(contract);
-
-					return { ...data, request: moduleContent };
-				});
+						const moduleContent = createModule(contract);
+					},
+				);
 			},
 		);
 	}
