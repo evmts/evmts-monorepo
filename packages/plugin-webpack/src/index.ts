@@ -66,6 +66,7 @@ export class EvmTsPlugin {
 						}
 
 						const moduleContent = createModule(contract);
+						callback();
 					},
 				);
 			},
