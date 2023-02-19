@@ -1,5 +1,17 @@
 import { z } from "zod";
 import * as webpack from "webpack";
+import {
+	Artifacts,
+	buildContracts,
+	createModule,
+	getArtifacts,
+	getContractName,
+	getFoundryConfig,
+} from "@evmts/plugins";
+import { resolve } from "path";
+import { readFileSync } from "fs";
+// @ts-ignore - TODO figure out why these types don't work
+import { pathExists } from "fs-extra/esm";
 
 export const forgeOptionsValidator = z.object({
 	forgeExecutable: z
@@ -24,11 +36,39 @@ export class EvmTsPlugin {
 	}
 
 	apply(compiler: webpack.Compiler) {
-		console.log(this.options);
+		let artifacts: Artifacts;
+		const foundryConfig = getFoundryConfig(this.options);
+
+		compiler.hooks.beforeRun.tapPromise(EvmTsPlugin.name, async (compiler) => {
+			await buildContracts(this.options);
+			if (!(await pathExists(foundryConfig.out))) {
+				throw new Error(
+					`@evmts/plugin-webpack: foundry output directory does not exist: ${foundryConfig.out}`,
+				);
+			}
+			artifacts = await getArtifacts(this.options);
+		});
+
 		compiler.hooks.normalModuleFactory.tap(
 			EvmTsPlugin.name,
 			(normalModuleFactory) => {
-				normalModuleFactory;
+				normalModuleFactory.hooks.resolve.tapAsync(EvmTsPlugin.name, (data) => {
+					if (!data.request.endsWith(".sol")) {
+						return data;
+					}
+
+					const contract = artifacts[getContractName(data.request)];
+
+					if (!contract) {
+						throw new Error(
+							`@evmts/plugin-webpack: contract not found: ${data.request}`,
+						);
+					}
+
+					const moduleContent = createModule(contract);
+
+					return { ...data, request: moduleContent };
+				});
 			},
 		);
 	}

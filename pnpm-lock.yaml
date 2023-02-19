@@ -434,6 +434,7 @@ importers:
       '@babel/helper-plugin-utils': ^7.20.2
       '@babel/parser': ^7.20.15
       '@babel/traverse': ^7.20.13
+      '@evmts/plugins': workspace:^0.0.1
       '@types/babel-core': ^6.25.7
       '@types/babel__core': ^7.20.0
       '@types/babel__helper-plugin-utils': ^7.10.0
@@ -456,6 +457,7 @@ importers:
     dependencies:
       '@babel/helper-plugin-utils': 7.20.2
       '@babel/parser': 7.20.15
+      '@evmts/plugins': link:../plugins
       '@types/babel-core': 6.25.7
       '@types/fs-extra': 11.0.1
       ethers: 6.0.4
