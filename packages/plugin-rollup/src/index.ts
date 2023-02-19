@@ -10,7 +10,6 @@ import {
 } from "@evmts/plugins";
 // @ts-ignore - TODO figure out why these types don't work
 import fs from "fs-extra/esm";
-import { basename, extname } from "pathe";
 import type { Plugin } from "rollup";
 import { z } from "zod";
 
@@ -69,7 +68,7 @@ export const evmtsPlugin = (options: FoundryOptions = {}): Plugin => {
 			}
 			const contract = artifacts[getContractName(id)];
 			if (!contract) {
-				console.log(artifacts, getContractName(id))
+				console.log(artifacts, getContractName(id));
 				throw new Error(`contract ${id} not found`);
 			}
 			return createModule(contract);

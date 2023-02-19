@@ -8,8 +8,6 @@ import {
 	getContractName,
 	getFoundryConfig,
 } from "@evmts/plugins";
-import { resolve } from "path";
-import { readFileSync } from "fs";
 // @ts-ignore - TODO figure out why these types don't work
 import { pathExists } from "fs-extra/esm";
 
