@@ -3,7 +3,7 @@ import * as webpack from "webpack";
 import {
 	Artifacts,
 	buildContracts,
-	createModule,
+	createModuleCjs,
 	getArtifacts,
 	getContractName,
 	getFoundryConfig,
@@ -37,7 +37,7 @@ export class EvmTsPlugin {
 		let artifacts: Artifacts;
 		const foundryConfig = getFoundryConfig(this.options);
 
-		compiler.hooks.beforeRun.tapPromise(EvmTsPlugin.name, async () => {
+		const preProcess = async () => {
 			await buildContracts(this.options);
 			if (!(await pathExists(foundryConfig.out))) {
 				throw new Error(
@@ -45,16 +45,26 @@ export class EvmTsPlugin {
 				);
 			}
 			artifacts = await getArtifacts(this.options);
-		});
+		};
+
+		compiler.hooks.beforeRun.tapPromise(EvmTsPlugin.name, preProcess);
+
+		compiler.hooks.watchRun.tapPromise(EvmTsPlugin.name, preProcess);
 
 		compiler.hooks.normalModuleFactory.tap(
 			EvmTsPlugin.name,
 			(normalModuleFactory) => {
-				normalModuleFactory.hooks.resolve.tapAsync(
+				normalModuleFactory.hooks.resolve.tapPromise(
 					EvmTsPlugin.name,
-					async (data, callback) => {
+					async (data) => {
 						if (!data.request.endsWith(".sol")) {
-							return callback();
+							return;
+						}
+
+						artifacts = artifacts || (await getArtifacts(this.options));
+
+						if (!artifacts) {
+							throw new Error("@evmts/plugin-webpack: artifacts not ");
 						}
 
 						const contract = artifacts[getContractName(data.request)];
@@ -65,9 +75,18 @@ export class EvmTsPlugin {
 							);
 						}
 
-						const moduleContent = createModule(contract);
+						const moduleContent = createModuleCjs(contract);
 						console.log(moduleContent);
-						callback();
+
+						// @ts-ignore - TODO figure out why these types don't work
+						const module = new webpack.default.Module("javascript/dynamic");
+
+						(module as any).sourceStr = moduleContent;
+						(module as any).identifierStr = moduleContent;
+						(module as any).readableIdentifierStr = moduleContent;
+						(module as any).runtimeRequirements = null;
+
+						data.request = moduleContent;
 					},
 				);
 			},
