@@ -442,6 +442,7 @@ importers:
       '@types/babel__helper-plugin-utils': ^7.10.0
       '@types/fs-extra': ^11.0.1
       '@vitest/ui': ^0.28.5
+      acorn: ^8.8.2
       core: link:@types/babel/core
       ethers: ^6.0.4
       execa: ^7.0.0
@@ -462,6 +463,7 @@ importers:
       '@evmts/plugins': link:../plugins
       '@types/babel-core': 6.25.7
       '@types/fs-extra': 11.0.1
+      acorn: 8.8.2
       ethers: 6.0.4
       execa: 7.0.0
       fs-extra: 11.1.0

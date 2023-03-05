@@ -10,6 +10,7 @@ import {
 } from "@evmts/plugins";
 // @ts-ignore - TODO figure out why these types don't work
 import { pathExists } from "fs-extra/esm";
+import * as acorn from "acorn";
 
 export const forgeOptionsValidator = z.object({
 	forgeExecutable: z
@@ -54,11 +55,11 @@ export class EvmTsPlugin {
 		compiler.hooks.normalModuleFactory.tap(
 			EvmTsPlugin.name,
 			(normalModuleFactory) => {
-				normalModuleFactory.hooks.resolve.tapPromise(
+				normalModuleFactory.hooks.resolve.tapAsync(
 					EvmTsPlugin.name,
-					async (data) => {
+					async (data, cb) => {
 						if (!data.request.endsWith(".sol")) {
-							return;
+							return cb(null);
 						}
 
 						artifacts = artifacts || (await getArtifacts(this.options));
@@ -78,15 +79,23 @@ export class EvmTsPlugin {
 						const moduleContent = createModuleCjs(contract);
 						console.log(moduleContent);
 
-						// @ts-ignore - TODO figure out why these types don't work
-						const module = new webpack.default.Module("javascript/dynamic");
-
-						(module as any).sourceStr = moduleContent;
-						(module as any).identifierStr = moduleContent;
-						(module as any).readableIdentifierStr = moduleContent;
-						(module as any).runtimeRequirements = null;
-
-						data.request = moduleContent;
+						// Create a new module with the ES module content
+						const out = {
+							resource: data.request,
+							type: "javascript/esm",
+							source: moduleContent,
+							parser: {
+								parse(source: any) {
+									return acorn.parse(source, {
+										ecmaVersion: 2022,
+										sourceType: "module",
+									});
+								},
+							},
+						};
+           console.log(data)
+						// Pass the new module to the callback
+						cb(null, { ...data, source: moduleContent });
 					},
 				);
 			},
