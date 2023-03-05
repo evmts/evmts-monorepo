@@ -1,22 +1,13 @@
 import Head from "next/head";
-import { Inter } from "@next/font/google";
 import styles from "@/styles/Home.module.css";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { run } from "@evmts/core";
 
 // @ts-ignore - TODO make a ts plugin TODO make a global .t.sol module type
-import PureQuery from "./PureQuery.s.sol";
+// import PureQuery from "./PureQuery.s.sol";
 
 export default function Home() {
 	const [num1, setNum1] = useState(0);
 	const [num2, setNum2] = useState(0);
-	const { data, error, isLoading } = useQuery(
-		[PureQuery.id, num1, num2],
-		async () => {
-			return run(PureQuery, [num1, num2]);
-		},
-	);
 	return (
 		<>
 			<Head>
@@ -43,9 +34,7 @@ export default function Home() {
 								value={num2}
 								onChange={(e) => setNum2(Number(e.target.value))}
 							/>{" "}
-							=<div id="data">{data}</div>
-							{error && <div>{JSON.stringify(error)}</div>}
-							{isLoading && <div>Loading...</div>}
+							=TODO
 						</>
 					</div>
 				</div>

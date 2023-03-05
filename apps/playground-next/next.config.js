@@ -1,4 +1,4 @@
-import { EvmTsPlugin } from "@evmts/plugin-webpack";
+// import { EvmTsPlugin } from "@evmts/plugin-webpack";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -10,7 +10,7 @@ const nextConfig = {
 		config,
 		{ buildId, dev, isServer, defaultLoaders, nextRuntime, webpack },
 	) => {
-		config.plugins.push(new EvmTsPlugin({}));
+		// config.plugins.push(new EvmTsPlugin({}));
 		return config;
 	},
 };
